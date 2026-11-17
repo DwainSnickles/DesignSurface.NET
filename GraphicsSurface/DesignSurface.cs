@@ -1,0 +1,3258 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
+using static System.Math;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+using static GraphicObjects.GraphicObjects;
+
+namespace DesignSurface
+{
+
+    public class DesignSurface : UserControl
+    {
+
+        #region  Windows Form Designer generated code 
+
+        public DesignSurface() : base()
+        {
+            gobjc = new GraphicObjects.GraphicObjectCollection();
+
+            // This call is required by the Windows Form Designer.
+            InitializeComponent();
+
+            // Add any initialization after the InitializeComponent() call
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.DoubleBuffer, true);
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.ResizeRedraw, true);
+            MouseDown += GraphicsSurface_MouseDown;
+            MouseUp += GraphicsSurface_MouseUp;
+            MouseMove += GraphicsSurface_MouseMove;
+            KeyDown += DesignSurface_KeyDown;
+            Load += DesignSurface_Load;
+        }
+
+        // UserControl1 overrides dispose to clean up the component list.
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components is not null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        // Required by the Windows Form Designer
+        private System.ComponentModel.IContainer components;
+
+        // NOTE: The following procedure is required by the Windows Form Designer
+        // It can be modified using the Windows Form Designer.  
+        // Do not modify it using the code editor.
+        private ContextMenuStrip _DefaultMenu;
+
+        internal virtual ContextMenuStrip DefaultMenu
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _DefaultMenu;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _DefaultMenu = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mnuCut;
+
+        internal virtual ToolStripMenuItem ds_mnuCut
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mnuCut;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mnuCut = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mnuCopy;
+
+        internal virtual ToolStripMenuItem ds_mnuCopy
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mnuCopy;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mnuCopy = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mnuPaste;
+
+        internal virtual ToolStripMenuItem ds_mnuPaste
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mnuPaste;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mnuPaste = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mmuBringToFront;
+
+        internal virtual ToolStripMenuItem ds_mmuBringToFront
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mmuBringToFront;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mmuBringToFront = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mnuSendToBack;
+
+        internal virtual ToolStripMenuItem ds_mnuSendToBack
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mnuSendToBack;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mnuSendToBack = value;
+            }
+        }
+        private PrintDialog _setupPrint;
+
+        internal virtual PrintDialog setupPrint
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _setupPrint;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _setupPrint = value;
+            }
+        }
+        private System.Drawing.Printing.PrintDocument _designSurfacePrintDocument;
+
+        internal virtual System.Drawing.Printing.PrintDocument designSurfacePrintDocument
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _designSurfacePrintDocument;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _designSurfacePrintDocument = value;
+            }
+        }
+        private FontDialog _fontChooser;
+
+        internal virtual FontDialog fontChooser
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _fontChooser;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _fontChooser = value;
+            }
+        }
+        private ColorDialog _colorPicker;
+
+        internal virtual ColorDialog colorPicker
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _colorPicker;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _colorPicker = value;
+            }
+        }
+        private OpenFileDialog _ofdImage;
+
+        internal virtual OpenFileDialog ofdImage
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ofdImage;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ofdImage = value;
+            }
+        }
+        private SaveFileDialog _sfdImage;
+
+        internal virtual SaveFileDialog sfdImage
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _sfdImage;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _sfdImage = value;
+            }
+        }
+        private PrintPreviewDialog _ppdPreview;
+
+        internal virtual PrintPreviewDialog ppdPreview
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ppdPreview;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ppdPreview = value;
+            }
+        }
+        private ToolStripMenuItem _ds_mnuEditSelected;
+
+        internal virtual ToolStripMenuItem ds_mnuEditSelected
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _ds_mnuEditSelected;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _ds_mnuEditSelected = value;
+            }
+        }
+        private PropertyGrid _PropertyGrid1;
+
+        private Panel _propertyGridPanel;
+
+        private Panel _propertiesCaption;
+
+        private Button _btnTogglePropertyGrid;
+
+        private const int PropertyGridExpandedWidth = 220;
+
+        private const int PropertyGridCollapsedWidth = 22;
+
+        internal virtual PropertyGrid PropertyGrid1
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _PropertyGrid1;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_PropertyGrid1 != null && _propertyGridPanel != null)
+                {
+                    _propertyGridPanel.Controls.Remove(_PropertyGrid1);
+                }
+
+                _PropertyGrid1 = value;
+                if (_PropertyGrid1 != null)
+                {
+                    _PropertyGrid1.Dock = DockStyle.Fill;
+                    if (_propertyGridPanel != null)
+                    {
+                        _propertyGridPanel.Controls.Add(_PropertyGrid1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// True when the property grid pane is collapsed to its toggle strip.
+        /// </summary>
+        public bool PropertyGridCollapsed
+        {
+            get
+            {
+                return _propertyGridPanel != null && _propertyGridPanel.Width <= PropertyGridCollapsedWidth;
+            }
+
+            set
+            {
+                SetPropertyGridCollapsed(value);
+            }
+        }
+
+        private void SetPropertyGridCollapsed(bool collapsed)
+        {
+            if (_propertyGridPanel == null)
+            {
+                return;
+            }
+
+            if (collapsed)
+            {
+                _propertyGridPanel.Width = PropertyGridCollapsedWidth;
+                _btnTogglePropertyGrid.Text = "«";
+            }
+            else
+            {
+                _propertyGridPanel.Width = PropertyGridExpandedWidth;
+                _btnTogglePropertyGrid.Text = "»";
+            }
+        }
+        private PictureBox _pbCropped;
+
+        internal virtual PictureBox pbCropped
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _pbCropped;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_pbCropped != null)
+                {
+                    _pbCropped.Click -= pbCropped_Click;
+                }
+
+                _pbCropped = value;
+                if (_pbCropped != null)
+                {
+                    _pbCropped.Click += pbCropped_Click;
+                }
+            }
+        }
+        private int DRAG_HANDLE_SIZE = 7;
+
+        [DebuggerStepThrough()]
+        private void InitializeComponent()
+        {
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(DesignSurface));
+            _DefaultMenu = new ContextMenuStrip();
+            _ds_mnuCut = new ToolStripMenuItem();
+            _ds_mnuCopy = new ToolStripMenuItem();
+            _ds_mnuPaste = new ToolStripMenuItem();
+            _ds_mmuBringToFront = new ToolStripMenuItem();
+            _ds_mnuSendToBack = new ToolStripMenuItem();
+            _ds_mnuEditSelected = new ToolStripMenuItem();
+            _setupPrint = new PrintDialog();
+            _designSurfacePrintDocument = new System.Drawing.Printing.PrintDocument();
+            _designSurfacePrintDocument.PrintPage += DesignSurfacePrintDocument_PrintPage;
+            _fontChooser = new FontDialog();
+            _colorPicker = new ColorDialog();
+            _ofdImage = new OpenFileDialog();
+            _sfdImage = new SaveFileDialog();
+            _ppdPreview = new PrintPreviewDialog();
+            _PropertyGrid1 = new PropertyGrid();
+            _propertyGridPanel = new Panel();
+            _propertiesCaption = new Panel();
+            _btnTogglePropertyGrid = new Button();
+            _pbCropped = new PictureBox();
+            _pbCropped.Click += new EventHandler(pbCropped_Click);
+            ((System.ComponentModel.ISupportInitialize)_pbCropped).BeginInit();
+            SuspendLayout();
+            // 
+            // DefaultMenu
+            // 
+            _DefaultMenu.Items.AddRange(new ToolStripMenuItem[] { _ds_mnuCut, _ds_mnuCopy, _ds_mnuPaste, _ds_mmuBringToFront, _ds_mnuSendToBack, _ds_mnuEditSelected });
+            // 
+            // ds_mnuCut
+            // 
+            _ds_mnuCut.Text = "&Cut";
+            // 
+            // ds_mnuCopy
+            // 
+            _ds_mnuCopy.Text = "C&opy";
+            // 
+            // ds_mnuPaste
+            // 
+            _ds_mnuPaste.Text = "&Paste";
+            // 
+            // ds_mmuBringToFront
+            // 
+            _ds_mmuBringToFront.Text = "&BringToFront";
+            // 
+            // ds_mnuSendToBack
+            // 
+            _ds_mnuSendToBack.Text = "&Send To Back";
+            // 
+            // ds_mnuEditSelected
+            // 
+            _ds_mnuEditSelected.Text = "&Edit Selected Image";
+            // 
+            // setupPrint
+            // 
+            _setupPrint.Document = _designSurfacePrintDocument;
+            // 
+            // sfdImage
+            // 
+            _sfdImage.FileName = "Untitled";
+            // 
+            // ppdPreview
+            // 
+            _ppdPreview.AutoScrollMargin = new Size(0, 0);
+            _ppdPreview.AutoScrollMinSize = new Size(0, 0);
+            _ppdPreview.ClientSize = new Size(400, 300);
+            _ppdPreview.Document = _designSurfacePrintDocument;
+            _ppdPreview.Enabled = true;
+            _ppdPreview.Icon = (Icon)resources.GetObject("ppdPreview.Icon");
+            _ppdPreview.Name = "_ppdPreview";
+            _ppdPreview.UseAntiAlias = true;
+            _ppdPreview.Visible = false;
+            // 
+            // PropertyGrid1
+            // 
+            _PropertyGrid1.Dock = DockStyle.Fill;
+            _PropertyGrid1.Name = "_PropertyGrid1";
+            // 
+            // propertyGridPanel
+            // 
+            _propertyGridPanel.Controls.Add(_PropertyGrid1);
+            _propertyGridPanel.Controls.Add(_propertiesCaption);
+            _propertyGridPanel.Controls.Add(_btnTogglePropertyGrid);
+            _propertyGridPanel.Dock = DockStyle.Right;
+            _propertyGridPanel.Name = "_propertyGridPanel";
+            _propertyGridPanel.Width = PropertyGridExpandedWidth;
+            // 
+            // propertiesCaption
+            // 
+            _propertiesCaption.Dock = DockStyle.Left;
+            _propertiesCaption.Name = "_propertiesCaption";
+            _propertiesCaption.Size = new Size(20, 23);
+            _propertiesCaption.Paint += PropertiesCaption_Paint;
+            // 
+            // btnTogglePropertyGrid
+            // 
+            _btnTogglePropertyGrid.Dock = DockStyle.Left;
+            _btnTogglePropertyGrid.Name = "_btnTogglePropertyGrid";
+            _btnTogglePropertyGrid.Size = new Size(22, 23);
+            _btnTogglePropertyGrid.Text = "»";
+            _btnTogglePropertyGrid.UseVisualStyleBackColor = true;
+            _btnTogglePropertyGrid.Click += BtnTogglePropertyGrid_Click;
+            // 
+            // pbCropped
+            // 
+            _pbCropped.BackColor = Color.Transparent;
+            _pbCropped.Location = new Point(297, 44);
+            _pbCropped.Name = "_pbCropped";
+            _pbCropped.Size = new Size(100, 50);
+            _pbCropped.TabIndex = 1;
+            _pbCropped.TabStop = false;
+            // 
+            // DesignSurface
+            // 
+            AutoScroll = true;
+            BackColor = SystemColors.Window;
+            Controls.Add(_pbCropped);
+            Controls.Add(_propertyGridPanel);
+            Name = "DesignSurface";
+            Size = new Size(508, 620);
+            ((System.ComponentModel.ISupportInitialize)_pbCropped).EndInit();
+            ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        #region Events
+
+        public event SelectionChangedEventHandler SelectionChanged;
+
+        public delegate void SelectionChangedEventHandler(object sender, SelectionChangedEventArgs e);
+        public event StatusUpdateEventHandler StatusUpdate;
+
+        public delegate void StatusUpdateEventHandler(object sender, StatusUpdateEventArgs e);
+        #endregion
+
+        private const float MinimumGridSize = 20f;
+        private Point dragOffset = new Point(0, 0);
+        private bool selectionDragging = false;
+        private bool dragging = false;
+        private bool wasdragging = false;
+        private bool rotating = false;
+        private float startingRotation = 0f;
+        private float originalRotation = 0f;
+        private Rectangle selectionRect;
+        private Rectangle m_SurfaceBounds = new Rectangle(0, 0, 850, 1100);
+        private Rectangle m_SurfaceMargins = new Rectangle(10, 10, 840, 1090);
+        private int m_HorizRes = 300;
+        private int m_VertRes = 300;
+        private bool m_ShowGrid = true;
+        private bool m_ShowMargins = true;
+        private Color m_NonPrintingAreaColor = Color.Gray;
+        private Color m_GridColor = Color.LightBlue;
+        private float m_GridSize = 50f;
+        private int m_GridLineWidth = 1;
+        private int m_MarginLineWidth = 1;
+        private Color m_MarginColor = Color.Green;
+        private GraphicObjects.GraphicObjects m_SelectedObject, m_CutSelectedObject, m_CopySelectedObject, m_PasteSelectedObject, m_UndoSelectedObject, m_RedoSelectedObject, MouseDragStart;
+        private float m_Zoom = 0.5f;
+        private ContextMenuStrip m_ContextMenuStrip;
+        private GraphicObjects.GraphicObjectCollection m_drawingObjects = new GraphicObjects.GraphicObjectCollection();
+        private Image m_SelectedImage;
+        private int m_RectStartX, m_RectStartY, m_RectEndX, m_RectEndY, m_ImageObjWidth, m_ImageObjHeight, m_Drag_Y, m_Drag_X;
+        // Private ReadOnly RedoList As New List(Of GraphicObjects.GraphicObjects)
+        // Private ReadOnly UndoList As New List(Of GraphicObjects.GraphicObjects)
+        private int intObjectCount;
+        private bool allObjectsDeleted = false;
+        private string strImagePath;
+        private bool blnLandscape, CanCutObject;
+        private GraphicObjects.GraphicObjects ClonedTextObject;
+        private GraphicObjects.GraphicObjects ClonedObject, CutObject;
+        private GraphicObjects.GraphicObjects CurrentGraphicImage;
+        private Rectangle SelectRectangle = new Rectangle();
+        private RectangleF StartlRectangle = new RectangleF();
+
+        // declare different points
+        private Point mMousePointDown;
+        private Point mMousePointDownScrCo;
+        private Point mMousePointMove;
+        private Point mMousePointUp;
+
+        // declare some coordinate variables
+        private float mMousePointDeltaX;
+        private int mPicBoxTopWhenMouseDown = 0;
+        private int mPicBoxLeftWhenMouseDown = 0;
+        private int mPicBoxTopWhenMouseDownSC = 0;
+        private int mPicBoxLeftWhenMouseDownSC = 0;
+        private int mPicBoxOldHeight;
+        private int mPicBoxOldWidth;
+        private bool MouseInRect = false;
+        private bool RectDragging = false;
+        private bool RectResizing = false;
+        private int ActiveDrag = -1;
+        public int RotationOffSet_X = 0;
+        public int RotationOffSet_Y = 0;
+        private Point MousePos;
+        private SolidBrush BackBrush;
+        private Pen[] LinePen = new Pen[2];
+        private GraphicObjects.GraphicObjectCollection _gobjc;
+
+        // Runtime drag/hit-test state. It is a settable collection, so without these attributes the
+        // WinForms designer tries to code-generate AddRange calls for it and fails on the
+        // System.Drawing.Graphics members inside (not serializable).
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public virtual GraphicObjects.GraphicObjectCollection gobjc
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _gobjc;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                _gobjc = value;
+            }
+        }
+
+        public Stack<GraphicObjects.GraphicObjects> UndoStack = new Stack<GraphicObjects.GraphicObjects>();
+        public Stack<GraphicObjects.GraphicObjects> RedoStack = new Stack<GraphicObjects.GraphicObjects>();
+
+        public DesignSurface(GraphicObjects.GraphicObjects gobj)
+        {
+            gobjc = new GraphicObjects.GraphicObjectCollection();
+            MouseDown += GraphicsSurface_MouseDown;
+            MouseUp += GraphicsSurface_MouseUp;
+            MouseMove += GraphicsSurface_MouseMove;
+            KeyDown += DesignSurface_KeyDown;
+            Load += DesignSurface_Load;
+
+        }
+
+        #region Saving / Loading
+
+        public virtual void LoadFromFile(string fileName)
+        {
+            // load objects from a binary file
+            try
+            {
+                var myBinarySerializer = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                // The stream has to be closed: an open one keeps the file locked for as long as the
+                // process lives, so the surface could not be loaded again after being saved.
+                using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    m_drawingObjects = (GraphicObjects.GraphicObjectCollection)myBinarySerializer.Deserialize(stream);
+                SelectedObject = null;
+                StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.FileLoaded, null, string.Format("file {0} loaded into the Graphic Surface", fileName), default, (float)default));
+                Invalidate();
+            }
+            catch (Exception e)
+            {
+                throw new ApplicationException("File failed to load.", e);
+            }
+
+        }
+
+        public virtual void SaveToFile(string fileName)
+        {
+            // save objects to a binary file
+            try
+            {
+                var myBinarySerializer = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                // Closing the stream flushes the buffered bytes; otherwise the saved file is held
+                // open and only partly written when something tries to read it back.
+                using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                    myBinarySerializer.Serialize(stream, drawingObjects);
+                StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.FileSaved, m_SelectedObject, string.Format("Graphic Surface saved to file {0}", fileName), default, (float)default));
+            }
+            catch (Exception e)
+            {
+                throw new ApplicationException("Save Failed.", e);
+            }
+        }
+
+        // if undo = true pop it from undo and push it to redo and Vise Versa
+        // Public Overridable Sub UnDo_Redo_Stack(ByVal Undo As Boolean, ByVal gobj As GraphicObjects.GraphicObjects)
+        // If Undo = True Then
+        // RedoStack.Push(gobj)
+        // If UndoStack.Count > 0 Then
+        // UndoStack.Pop()
+        // End If
+        // Else
+        // UndoStack.Push(gobj)
+        // If UndoStack.Count > 0 Then
+        // RedoStack.Pop()
+        // End If
+        // End If
+        // End Sub
+
+        // USAGE
+        // ConvertBMP("C:\test.bmp", ImageFormat.Jpeg)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Emf)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Exif)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Gif)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Icon)
+        // ConvertBMP("C:\test.bmp", ImageFormat.MemoryBmp)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Png)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Tiff)
+        // ConvertBMP("C:\test.bmp", ImageFormat.Wmf)
+        public enum ImageSaveType
+        {
+            None,
+            jpeg,
+            png,
+            gif,
+            emf,
+            exif,
+            ico,
+            bmp,
+            wmf,
+            tiff
+        }
+
+        public void SaveAsBitmap()
+        {
+            try
+            {
+                sfdImage.Filter = "Images|*.png;*.bmp;*.jpg;*.emf;*.gif;*.exif;*.tiff;*.wmf;*.ico";
+                sfdImage.InitialDirectory = ((int)Environment.SpecialFolder.MyPictures).ToString();
+                sfdImage.ShowDialog();
+                if (string.IsNullOrEmpty(sfdImage.FileName))
+                    return;
+
+                if (drawingObjects.Count >= 1)
+                {
+                    Color MC, GC;
+                    MC = MarginColor;
+                    GC = GridColor;
+                    // get the instance of the graphics from the control
+                    var G = CreateGraphics();
+                    MarginColor = BackColor;
+                    GridColor = BackColor;
+                    SelectedObject = null;
+                    // Cycle through all drawrin objects to get min and max size using objects
+                    int YMin = default, YMax = default, XMin = default, XMax = default, Count = default;
+                    foreach (GraphicObjects.GraphicObjects DrawnObject in drawingObjects)
+                    {
+                        if (Count == 0) // First Drawn Object Check for Min and Max
+                        {
+                            YMin = DrawnObject.Y;
+                            YMax = DrawnObject.Y + DrawnObject.Height;
+                            XMin = DrawnObject.X;
+                            XMax = DrawnObject.X + DrawnObject.Width;
+                            Count = 1;
+                        }
+                        else // Compare positions to obtain min max etc
+                        {
+                            if (DrawnObject.Y < YMin)
+                            {
+                                YMin = DrawnObject.Y;
+                            }
+                            if (DrawnObject.Y + DrawnObject.Height > YMax)
+                            {
+                                YMax = DrawnObject.Y + DrawnObject.Height;
+                            }
+                            if (DrawnObject.X < XMin)
+                            {
+                                XMin = DrawnObject.X;
+                            }
+                            if (DrawnObject.X + DrawnObject.Width > XMax)
+                            {
+                                XMax = DrawnObject.X + DrawnObject.Width;
+                            }
+                        }
+                    }
+                    // new bitmap object to save the image        Bitmap bmp = new Bitmap(control.Width, control.Height);
+                    if (drawingObjects.Count > 1)
+                    {
+
+                    }
+                    var BMP = new Bitmap(XMax - XMin - 10, YMax - YMin - 10);
+                    // //Drawing control to the bitmap        control.DrawToBitmap(bmp, new Rectangle(0, 0, control.Width, control.Height));
+                    DrawToBitmap(BMP, new Rectangle(0, 0, BMP.Width, BMP.Height));
+
+                    var SaveImage = new Bitmap(BMP);
+                    string fileName = sfdImage.FileName;
+                    var fi = new FileInfo(fileName);
+                    string extn = fi.Extension;
+
+                    if (extn == ".emf")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Emf);
+                    }
+
+                    if (extn == ".bmp")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Bmp);
+                    }
+
+                    if (extn == ".exif")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Exif);
+                    }
+
+                    if (extn == ".gif")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Gif);
+                    }
+
+                    if (extn == ".ico")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Icon);
+                    }
+
+                    if (extn == ".jpg")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Jpeg);
+                    }
+
+                    if (extn == ".png")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Png);
+                    }
+
+                    if (extn == ".tiff")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Tiff);
+                    }
+
+                    if (extn == ".wmf")
+                    {
+                        SaveImage.Save(sfdImage.FileName, ImageFormat.Wmf);
+                    }
+
+
+                    MarginColor = MC;
+                    GridColor = GC;
+
+                    SaveImage.Dispose();
+
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+
+        }
+        #endregion
+        #region Mouse Rectangles For Drag Drop Operatios
+
+        // Private Sub UndrawSelRectAndSetFlags()
+
+        // ' on first entry in this block after pressing left mouse button
+        // ' undraw the selection rectangle
+        // If Not mblnResizingPicBoxFlag Then
+        // Me.Invalidate()
+        // End If
+
+        // ' set flag that picture box is on resizing to avoid dragging
+        // ' of the picture box
+        // mblnResizingPicBoxFlag = True
+
+
+        // ' set flag that cursor was moved
+        // mPicBoxMouseMovedFlag = True
+
+        // ' TODO - needed?
+        // '' make sure that no drag happens when resizing is running
+        // 'mblnDragOKFlag = False
+
+        // End Sub
+
+        // Private Function MouseIsOn_NW(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.NW_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.NW_P
+
+        // MouseIsOn_NW = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+        // MouseIsOn_NW = True
+        // 'Me.Cursor = Cursors.PanNW
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'North Rectangle
+        // Private Function mouseIsOn_N(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.N_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.N_P
+        // mouseIsOn_N = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // mouseIsOn_N = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'NE Rectangle
+        // Private Function mouseIsOn_NE(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.NE_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.NE_P
+        // mouseIsOn_NE = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // 'Me.Cursor = Cursors.PanNE
+        // mouseIsOn_NE = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'East
+        // Private Function mouseIsOn_E(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.E_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.E_P
+        // mouseIsOn_E = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // mouseIsOn_E = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'SE
+        // Private Function mouseIsOn_SE(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.SE_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.SE_P
+        // mouseIsOn_SE = False
+
+        // If MousePoint.X >= PT.X - 10 And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y - 10 And MousePoint.Y <= PT.Y + 10 Then
+
+        // mouseIsOn_SE = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'South
+        // Private Function mouseIsOn_S(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.S_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.S_P
+        // mouseIsOn_S = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // 'Me.Cursor = Cursors.PanNE
+        // mouseIsOn_S = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'SW
+        // Private Function mouseIsOn_SW(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+
+        // Dim Rect As Rectangle = GraphicObjectCollection.SW_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.SW_P
+        // mouseIsOn_SW = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // Me.Cursor = Cursors.Hand
+        // mouseIsOn_SW = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'West
+        // Private Function mouseIsOn_W(ByVal sender As Object, ByVal MousePoint As Point) As Boolean
+        // Dim Rect As Rectangle = GraphicObjectCollection.W_R
+
+        // If SelectedObject Is Nothing Or Rect.IsEmpty Then
+        // Exit Function
+        // End If
+
+        // Dim PT As New Point()
+        // PT = GraphicObjectCollection.W_P
+        // mouseIsOn_W = False
+
+        // If MousePoint.X >= PT.X And MousePoint.X <= PT.X + 10 And MousePoint.Y >= PT.Y And MousePoint.Y <= PT.Y + 10 Then
+
+        // mouseIsOn_W = True
+        // Resizing_Flag = True
+        // Else
+        // Resizing_Flag = False
+        // End If
+
+        // End Function
+
+        // 'XXXXXXXXX--Start Cursor Rectangles--XXXXXX
+        // Private Function mouseIsOn_gobjc.DragRectangleFangle(ByVal MousePoint As Point) As Boolean
+
+        // If SelectedObject Is Nothing Then
+        // Exit Function
+        // End If
+
+        // mouseIsOn_gobjc.DragRectangleFangle = False
+        // MousePoint = DeZoomPoint(MousePoint)
+
+        // Dim P As Point = New Point(SelectedObject.X, SelectedObject.Y)
+        // 'Debug.WriteLine("Mouse " & MousePoint.ToString)
+        // 'Debug.WriteLine("Object Location " + SelectedObject.Location.ToString)
+        // 'Debug.WriteLine("Drag Rectangle " + P.ToString)
+        // 'Subtract 20 From Widht to allow for grabhandles
+        // If MousePoint.X >= P.X And MousePoint.X <= SelectedObject.Width + SelectedObject.X - 20 And MousePoint.Y >= P.Y And MousePoint.Y <= SelectedObject.Height + SelectedObject.Y Then
+        // mouseIsOn_gobjc.DragRectangleFangle = True
+        // Drag_Flag = True
+        // Else
+        // Drag_Flag = False
+        // End If
+
+        // End Function
+
+        // Private Function mouseIsOn_RotateRectangle(ByVal MousePoint As Point) As Boolean
+
+        // If SelectedObject Is Nothing Then
+        // Exit Function
+        // End If
+
+        // Dim P As Point = New Point(SelectedObject.X, SelectedObject.Y)
+        // MousePoint = DeZoomPoint(MousePoint)
+
+        // mouseIsOn_RotateRectangle = False
+
+        // Debug.WriteLine("Mouse " & MousePoint.ToString)
+        // Debug.WriteLine("Object Location " + SelectedObject.Location.ToString)
+
+        // If MousePoint.X >= SelectedObject.Width + SelectedObject.X - 25 And MousePoint.X <= SelectedObject.Width + SelectedObject.X And MousePoint.Y >= P.Y And MousePoint.Y <= SelectedObject.Height + SelectedObject.Y Then
+
+        // mouseIsOn_RotateRectangle = True
+        // Rotate_Flag = True
+        // Else
+        // Rotate_Flag = False
+        // End If
+
+        // End Function
+
+        #endregion
+        #region Design Surface Proprties
+        public object GrObjectChanged { get; set; }
+
+        // Public Property LabelText() As String
+        // Get
+        // Return m_Text
+        // End Get
+        // Set(ByVal Value As String)
+        // m_Text = Value
+        // End Set
+        // End Property
+
+        public virtual GraphicObjects.GraphicObjects CopyGraphicObject
+        {
+            get
+            {
+                return CurrentGraphicImage;
+            }
+            set
+            {
+                CurrentGraphicImage = value;
+            }
+        }
+
+        public virtual GraphicObjects.GraphicObjects PasteGraphicImage
+        {
+            get
+            {
+                return CurrentGraphicImage;
+            }
+            set
+            {
+                if (value is null)
+                    return;
+                // Me.AddObject(CurrentGraphicImage, CurrentGraphicImage.ImageType)
+            }
+        }
+
+        public virtual ContextMenuStrip ContxtMenu
+        {
+            get
+            {
+                return m_ContextMenuStrip;
+            }
+            set
+            {
+                m_ContextMenuStrip = value;
+                Invalidate();
+            }
+        }
+
+        public virtual Rectangle SurfaceBounds
+        {
+            // bounds in 1/100ths of an inch, just like the printer objects use
+            get
+            {
+                return m_SurfaceBounds;
+            }
+            set
+            {
+                m_SurfaceBounds = value;
+                Invalidate();
+            }
+        }
+
+        public virtual Rectangle SurfaceMargins
+        {
+            // bounds in 1/100ths of an inch, just like the printer objects use
+            get
+            {
+                return m_SurfaceMargins;
+            }
+            set
+            {
+                m_SurfaceMargins = value;
+                Invalidate();
+            }
+        }
+
+        public float Zoom
+        {
+            get
+            {
+                return m_Zoom;
+            }
+            set
+            {
+                if ((double)value > 0.05d)
+                {
+                    m_Zoom = value;
+                }
+                else
+                {
+                    m_Zoom = 0.05f;
+                }
+                Invalidate();
+            }
+        }
+
+        public virtual GraphicObjects.GraphicObjectCollection drawingObjects
+        {
+            get
+            {
+                // since this is a reference type, users can add/remove/manipulate its contents
+                // even though it is read only. they can't change m_drawingobjects itself though
+                // ie. graphicssurface1.drawingobjects = Nothing would fail.
+                return m_drawingObjects;
+            }
+        }
+
+        public virtual Color MarginColor
+        {
+            get
+            {
+                return m_MarginColor;
+            }
+            set
+            {
+                m_MarginColor = value;
+                Invalidate();
+            }
+        }
+
+        public virtual int MarginLineWidth
+        {
+            get
+            {
+                return m_MarginLineWidth;
+            }
+            set
+            {
+                if (value > 0)
+                {
+                    m_MarginLineWidth = value;
+                    Invalidate();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("MarginLineWidth", "MarginLineWidth must be greater than zero");
+                }
+            }
+        }
+
+        public virtual bool GridShown
+        {
+            get
+            {
+                return m_ShowGrid;
+            }
+            set
+            {
+                m_ShowGrid = value;
+                Invalidate();
+            }
+        }
+
+        public virtual bool GridMarginsShown
+        {
+            get
+            {
+                return m_ShowMargins;
+            }
+            set
+            {
+                m_ShowMargins = value;
+                Invalidate();
+            }
+        }
+
+        public virtual Color GridColor
+        {
+            get
+            {
+                return m_GridColor;
+            }
+            set
+            {
+                m_GridColor = value;
+                Invalidate();
+            }
+        }
+
+        public virtual Color NonPrintingAreaColor
+        {
+            get
+            {
+                return m_NonPrintingAreaColor;
+            }
+            set
+            {
+                m_NonPrintingAreaColor = value;
+            }
+        }
+
+        public virtual int GridLineWidth
+        {
+            get
+            {
+                return m_GridLineWidth;
+            }
+            set
+            {
+                if (value > 0)
+                {
+                    m_GridLineWidth = value;
+                    Invalidate();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("GridLineWidth", "GridLineWidth must be greater than zero");
+                }
+            }
+        }
+
+        public virtual float GridSize
+        {
+            // in 100ths of an inch
+            get
+            {
+                return m_GridSize;
+            }
+            set
+            {
+                if (value > MinimumGridSize)
+                {
+                    m_GridSize = value;
+                    Invalidate();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("GridSize", string.Format("Grid Size must be greater than {0}", MinimumGridSize));
+                }
+            }
+        }
+
+        public virtual int ImageObjHeight
+        {
+            get
+            {
+                return m_ImageObjHeight;
+            }
+            set
+            {
+                if (SelectedObject is not null)
+                {
+                    m_ImageObjHeight = value;
+                    Invalidate();
+                }
+
+                // GraphicObject.Height = m_ImageObjHeight
+            }
+        }
+
+        public virtual int ImageObjWidth
+        {
+            get
+            {
+                return m_ImageObjWidth;
+            }
+            set
+            {
+                m_ImageObjWidth = value;
+                Invalidate();
+            }
+        }
+
+        #endregion
+
+        protected float ConvertToHPixels(float value)
+        {
+            return value * m_HorizRes;
+        }
+
+        protected float ConvertToVPixels(float value)
+        {
+            return value * m_VertRes;
+        }
+
+        protected Rectangle ConvertToPixels(Rectangle rect)
+        {
+            // convert from 100ths of an inch to pixels
+            Rectangle Bounds;
+            Bounds = new Rectangle((int)Round(ConvertToHPixels((float)(rect.X / 100d))), (int)Round(ConvertToVPixels((float)(rect.Y / 100d))), (int)Round(ConvertToHPixels((float)(rect.Width / 100d))), (int)Round(ConvertToVPixels((float)(rect.Height / 100d))));
+            return Bounds;
+        }
+
+        protected int ZoomInteger(int @int)
+        {
+            int MyZoom = (int)Round(@int * Zoom);
+            return MyZoom;
+        }
+
+        protected Point ZoomPoint(Point PT)
+        {
+            var MyZoom = new Point((int)Round(PT.X * Zoom), (int)Round(PT.Y * Zoom));
+            return MyZoom;
+        }
+
+        protected Size ZoomSize(Size SZ)
+        {
+            var MyZoom = new Size((int)Round(SZ.Width * Zoom), (int)Round(SZ.Width * Zoom));
+            return MyZoom;
+        }
+
+        protected Size DeZoomSize(Size SZ)
+        {
+            var MyZoom = new Size((int)Round(SZ.Width / Zoom), (int)Round(SZ.Width / Zoom));
+            return MyZoom;
+        }
+
+        protected Point DeZoomPoint(Point PT)
+        {
+            var MyZoom = new Point((int)Round(PT.X / Zoom), (int)Round(PT.Y / Zoom));
+            return MyZoom;
+        }
+
+        protected Rectangle ZoomRectangle(Rectangle originalRect)
+        {
+            var myNewRect = new Rectangle((int)Round(originalRect.X * Zoom), (int)Round(originalRect.Y * Zoom), (int)Round(originalRect.Width * Zoom), (int)Round(originalRect.Height * Zoom));
+            return myNewRect;
+        }
+
+        protected Rectangle DeZoomRectangle(Rectangle originalRect)
+        {
+            var myNewRect = new Rectangle((int)Round(originalRect.X / Zoom), (int)Round(originalRect.Y / Zoom), (int)Round(originalRect.Width / Zoom), (int)Round(originalRect.Height / Zoom));
+            return myNewRect;
+        }
+
+        protected virtual void DrawGrid(Graphics g)
+        {
+            Rectangle bounds;
+            int horizGridSize = (int)Round(ConvertToHPixels(GridSize / 100f) * Zoom);
+            int vertGridSize = (int)Round(ConvertToVPixels(GridSize / 100f) * Zoom);
+            bounds = ConvertToPixels(SurfaceBounds);
+            bounds = ZoomRectangle(bounds);
+            if (AutoScrollMinSize.Height != bounds.Height && AutoScrollMinSize.Width != bounds.Width)
+            {
+                AutoScrollMinSize = new Size(bounds.Width, bounds.Height);
+            }
+
+            g.Clear(m_NonPrintingAreaColor);
+            g.FillRectangle(new SolidBrush(BackColor), bounds);
+
+            if (templateActive)
+            {
+                return;
+            }
+
+            var gridPen = new Pen(GridColor, m_GridLineWidth);
+            int i;
+            var loopTo = bounds.Height;
+            for (i = vertGridSize; vertGridSize >= 0 ? i <= loopTo : i >= loopTo; i += vertGridSize)
+                g.DrawLine(gridPen, 0, i, bounds.Width, i);
+            var loopTo1 = bounds.Width;
+            for (i = horizGridSize; horizGridSize >= 0 ? i <= loopTo1 : i >= loopTo1; i += horizGridSize)
+                g.DrawLine(gridPen, i, 0, i, bounds.Height);
+
+        }
+
+        protected virtual void DrawMargins(Graphics g)
+        {
+            var margins = ZoomRectangle(ConvertToPixels(m_SurfaceMargins));
+            var marginPen = new Pen(m_MarginColor);
+            marginPen.DashStyle = DashStyle.Dash;
+            marginPen.Width = m_MarginLineWidth;
+            g.DrawRectangle(marginPen, margins);
+        }
+
+        protected virtual void DrawTemplateCells(Graphics g)
+        {
+            if (!templateActive)
+            {
+                return;
+            }
+
+            var pageBounds = ZoomRectangle(ConvertToPixels(SurfaceBounds));
+            var cellPen = new Pen(Color.FromArgb(170, Color.Gray), 1f);
+
+            for (var r = 0; r < t_Rows; r++)
+            {
+                for (var c = 0; c < t_Columns; c++)
+                {
+                    var cell = GetTemplateCellBounds(c, r);
+                    var cellRect = ZoomRectangle(ConvertToPixels(cell));
+                    cellRect.Intersect(pageBounds);
+                    if (cellRect.Width > 0 && cellRect.Height > 0)
+                    {
+                        g.DrawRectangle(cellPen, cellRect);
+                    }
+                }
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            try
+            {
+
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                // get the dpi settings of the graphics context,
+                // for example; 96dpi on screen, 600dpi for the printer
+                // used to adjust grid and margin sizing.
+                m_HorizRes = (int)Round(g.DpiX);
+                m_VertRes = (int)Round(g.DpiY);
+
+                // handle the possibility that the viewport is scrolled,
+                // adjust my origin coordintates to compensate
+                var pt = AutoScrollPosition;
+                g.TranslateTransform(pt.X, pt.Y);
+
+                if (m_ShowGrid)
+                {
+                    DrawGrid(g);
+                    DrawTemplateCells(g);
+                }
+
+
+                // draw the actual objects onto the page, on top of the grid
+                {
+                    var withBlock = drawingObjects;
+                    // pass the graphics resolution onto the objects
+                    // so that images and other objects can be sized
+                    // correct taking the dpi into consideration.
+                    withBlock.HorizontalResolution = (int)Round(g.DpiX);
+                    withBlock.VerticalResolution = (int)Round(g.DpiY);
+                    withBlock.DrawObjects(g, Zoom);
+                    // doesn't really draw the selected object, but instead the
+                    // selection indicator, a dotted outline around the selected object
+                    withBlock.DrawSelectedObject(g, m_SelectedObject, Zoom);
+                }
+
+                // Draw dashed line margin indicators, over top of objects
+                if (GridMarginsShown)
+                {
+                    DrawMargins(g);
+                }
+
+                if (SelectedObject is null)
+                    return;
+                gobjc.DragRectangleF = new RectangleF(SelectedObject.X, SelectedObject.Y, SelectedObject.Width, SelectedObject.Height);
+            }
+
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                throw new ApplicationException("Error Drawing Graphics Surface", ex);
+            }
+
+        }
+
+        private Point gscTogoc(Point gsPT)
+        {
+            var myNewPoint = default(Point);
+            myNewPoint.X = (int)Round((gsPT.X - AutoScrollPosition.X) / Zoom);
+            myNewPoint.Y = (int)Round((gsPT.Y - AutoScrollPosition.Y) / Zoom);
+            return myNewPoint;
+        }
+
+        private Point gscTogoc(int X, int Y)
+        {
+            var myNewPoint = default(Point);
+            myNewPoint.X = (int)Round((X - AutoScrollPosition.X) / Zoom);
+            myNewPoint.Y = (int)Round((Y - AutoScrollPosition.Y) / Zoom);
+            return myNewPoint;
+        }
+
+        private Point gocTogsc(Point goPT)
+        {
+            // note that there is no need for a New for my Point
+            // before I can assign values to X and Y
+            // as it is a structure not an object
+            var myNewPoint = default(Point);
+            myNewPoint.X = (int)Round(goPT.X * Zoom);
+            myNewPoint.Y = (int)Round(goPT.Y * Zoom);
+
+            return myNewPoint;
+        }
+
+        private Point gocTogsc(int X, int Y)
+        {
+            var myNewPoint = default(Point);
+            myNewPoint.X = (int)Round(X * Zoom);
+            myNewPoint.Y = (int)Round(Y * Zoom);
+            return myNewPoint;
+        }
+
+        private void SetDragCursor()
+        {
+            if (ActiveDrag != -1)
+            {
+                rotating = false;
+                switch (ActiveDrag)
+                {
+                    case 0:
+                        {
+                            Cursor = Cursors.SizeNWSE;
+                            break;
+                        }
+                    case 1:
+                        {
+                            Cursor = Cursors.SizeNS;
+                            break;
+                        }
+                    case 2:
+                        {
+                            Cursor = Cursors.SizeNESW;
+                            break;
+                        }
+                    case 3:
+                        {
+                            Cursor = Cursors.SizeWE;
+                            break;
+                        }
+                    case 4:
+                        {
+                            Cursor = Cursors.SizeNWSE;
+                            break;
+                        }
+                    case 5:
+                        {
+                            Cursor = Cursors.SizeNS;
+                            break;
+                        }
+                    case 6:
+                        {
+                            Cursor = Cursors.SizeNESW;
+                            break;
+                        }
+                    case 7:
+                        {
+                            Cursor = Cursors.SizeWE;
+                            break;
+                        }
+                    case 8:
+                        {
+                            var img = new Bitmap(My.Resources.Resources.RotateHand);
+                            img.MakeTransparent(Color.White);
+                            Cursor = CustomCursor.CreateCursor(img, 8, 8);
+                            rotating = true;
+                            break;
+                        }
+                    case 9:
+                        {
+                            var img = new Bitmap(My.Resources.Resources.RotateHand);
+                            img.MakeTransparent(Color.White);
+                            Cursor = CustomCursor.CreateCursor(img, 8, 8);
+                            rotating = true;
+                            break;
+                        }
+
+                    default:
+                        {
+                            Cursor = Cursors.Default;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        public Image RotateImage(Image TheImage, float Rotation)
+        {
+            Image RotatedBM;
+            // = DeZoomRectangle(TheImage.X, TheImage.Y, TheImage.Width, TheImage.Height)
+
+            // Copy the output bitmap from the source image.
+            var bm_in = new Bitmap(TheImage);
+
+            // Make an array of points defining the
+            // image's corners.
+            float wid = bm_in.Width;
+            float hgt = bm_in.Height;
+
+            Point[] corners = new[] { new Point(0, 0), new Point((int)Round(wid), 0), new Point(0, (int)Round(hgt)), new Point((int)Round(wid), (int)Round(hgt)) };
+
+            // Translate to center the bounding box at the origin.
+            float cx = wid / 2f;
+            float cy = hgt / 2f;
+            long i;
+            for (i = 0L; i <= 3L; i++)
+            {
+                corners[(int)i].X = (int)Round(corners[(int)i].X - cx);
+                corners[(int)i].Y = (int)Round(corners[(int)i].Y - cy);
+            }
+
+            // Rotate.
+            float theta = (float)((double)float.Parse(Rotation.ToString()) * PI / -180.0d);
+            float sin_theta = (float)Sin((double)theta);
+            float cos_theta = (float)Cos((double)theta);
+            float X;
+            float Y;
+            for (i = 0L; i <= 3L; i++)
+            {
+                X = corners[(int)i].X;
+                Y = corners[(int)i].Y;
+                corners[(int)i].X = (int)Round(X * cos_theta + Y * sin_theta);
+                corners[(int)i].Y = (int)Round(-X * sin_theta + Y * cos_theta);
+            }
+
+            // Translate so X >= 0 and Y >=0 for all corners.
+            float xmin = corners[0].X;
+            float ymin = corners[0].Y;
+            for (i = 1L; i <= 3L; i++)
+            {
+                if (xmin > corners[(int)i].X)
+                    xmin = corners[(int)i].X;
+                if (ymin > corners[(int)i].Y)
+                    ymin = corners[(int)i].Y;
+            }
+            for (i = 0L; i <= 3L; i++)
+            {
+                corners[(int)i].X = (int)Round(corners[(int)i].X - xmin);
+                corners[(int)i].Y = (int)Round(corners[(int)i].Y - ymin);
+            }
+
+            // Create an output Bitmap and Graphics object.
+            var bm_out = new Bitmap((int)Round(-2 * xmin), (int)Round(-2 * ymin));
+            var gr_out = Graphics.FromImage(bm_out);
+
+            // Drop the last corner lest we confuse DrawImage, 
+            // which expects an array of three corners.
+            Array.Resize(ref corners, 3);
+
+            // Draw the result onto the output Bitmap.
+            gr_out.DrawImage(bm_in, corners);
+
+            // Display the result.
+            RotatedBM = bm_out;
+
+            return RotatedBM;
+        }
+
+        private void CenterAndZoomAndRotatedText(Graphics gr, string txt, Point pos, Size Size, float Rotatation) // ByVal x As Single, ByVal y As Single)
+        {
+            var displayFontFam = new FontFamily("Rockwell Extra Bold");
+            var displayFont = new Font(displayFontFam, 36f, FontStyle.Bold, GraphicsUnit.Pixel);
+
+            gr.SmoothingMode = SmoothingMode.HighQuality;
+            gr.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            gr.CompositingQuality = CompositingQuality.HighQuality;
+
+            // Zoom += 1
+            // If Zoom = 0 Then Zoom = 0.01
+            int wp = (int)Round(Size.Width / 2d);
+            int hp = (int)Round(Size.Height / 2d);
+            var rectF = new RectangleF(pos.X - wp, pos.Y - hp, Size.Width, Size.Height);
+
+            var sf = new StringFormat();
+            sf.LineAlignment = StringAlignment.Center;
+            sf.Alignment = StringAlignment.Center;
+
+            var StringSize = new SizeF();
+            StringSize = gr.MeasureString(txt, displayFont);
+            int méret = (int)Round(StringSize.Width);
+            var br = new SolidBrush(Color.FromArgb(30, SystemColors.Highlight));
+            gr.ResetTransform();
+            gr.TranslateTransform(-pos.X, -pos.Y, MatrixOrder.Append);
+            gr.ScaleTransform(Zoom, Zoom, MatrixOrder.Append);
+            gr.RotateTransform(Rotatation, MatrixOrder.Append);
+            gr.TranslateTransform(pos.X, pos.Y, MatrixOrder.Append);
+            gr.FillRectangle(br, rectF);
+
+            gr.DrawRectangle(new Pen(Color.Blue, 2f), new Rectangle((int)Round(rectF.X), (int)Round(rectF.Y), (int)Round(rectF.Width), (int)Round(rectF.Height)));
+
+            gr.DrawString(txt, displayFont, Brushes.Blue, rectF, sf);
+            gr.ResetTransform();
+
+            gr.DrawLine(Pens.Red, pos.X - 10, pos.Y, pos.X + 10, pos.Y);
+            gr.DrawLine(Pens.Red, pos.X, pos.Y - 10, pos.X, pos.Y + 10);
+
+            sf.Dispose();
+            displayFontFam.Dispose();
+            displayFont.Dispose();
+        }
+
+        private void GraphicsSurface_MouseDown(object sender, MouseEventArgs e)
+        {
+
+            // If e.Button And MouseButtons.Right Then
+            // ContextMenuStrip = Me.ContxtMenu
+            // 
+            // originalRotation = m_SelectedObject.Rotation
+            // wasdragging = False
+            // End If
+
+            if (e.Button == MouseButtons.Left)
+            {
+
+                // Dim rectf As Rectangle = Rectangle.Round(gobjc.DragRectangleFangle)
+                gobjc.DragRectangleF = new RectangleF(SelectedObject.X, SelectedObject.Y, SelectedObject.Width, SelectedObject.Height);
+                StartlRectangle = gobjc.DragRectangleF;
+                SelectedObject.AutoSize = false;
+                MousePos = new Point(e.X, e.Y);
+                MousePos = PointToScreen(MousePos);
+
+                var pinned = SelectedObject != null && SelectedObject.IsPinned;
+
+                if (MouseInRect & ActiveDrag == -1)
+                {
+                    if (!pinned)
+                    {
+                        RectDragging = true;
+                    }
+                }
+                // OriginalRectangle = gobjc.DragRectangleFangle
+                else if (ActiveDrag != -1)
+                {
+                    if (!pinned)
+                    {
+                        RectResizing = true;
+                    }
+                }
+                else if (ActiveDrag > 7)
+                {
+                    if (!pinned)
+                    {
+                        rotating = true;
+                    }
+                }
+            }
+        }
+
+        private void GraphicsSurface_MouseUp(object sender, MouseEventArgs e)
+        {
+
+            if (rotating == true)
+            {
+                rotating = false;
+                // SelectedObject = SelectedObject
+                // SelectedObject.Image = gobjc.RotatedBitmap
+                Refresh();
+                Invalidate();
+                gobjc.LoadDrag_Handles();
+            }
+
+            if (e.Button == MouseButtons.Left)
+            {
+                RectDragging = false;
+                RectResizing = false;
+                Invalidate();
+                gobjc.LoadDrag_Handles();
+                PropertyGrid1.Refresh();
+            }
+        }
+
+        private void GraphicsSurface_MouseMove(object sender, MouseEventArgs e)
+        {
+
+            var CurrMouse = new Point(e.X, e.Y);
+
+            CurrMouse.X = Max(0, Min(CurrMouse.X, ClientSize.Width));
+            CurrMouse.Y = Max(0, Min(CurrMouse.Y, ClientSize.Height));
+
+            CurrMouse = PointToScreen(CurrMouse);
+
+            if (e.Button == MouseButtons.Left)
+            {
+
+                var dragPoint = gscTogoc(e.X, e.Y);
+
+                if (rotating)
+                {
+
+                    float currentRotation;
+
+                    currentRotation = AngleToPoint(m_SelectedObject.GetPosition(), dragPoint);
+
+                    currentRotation = (int)Round((currentRotation - startingRotation + originalRotation) % 360f);
+
+                    m_SelectedObject.Rotation = currentRotation;
+
+                    StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.ObjectRotated, SelectedObject, string.Format("Object Rotated to {0} degrees", currentRotation), default, currentRotation));
+
+                    Invalidate();
+                    // Return
+                }
+
+                if (RectDragging)
+                {
+
+                    if (Abs(CurrMouse.X - MousePos.X) > 2 | Abs(CurrMouse.Y - MousePos.Y) > 2)
+                    {
+                        gobjc.DragRectangleF.Offset(CurrMouse.X - MousePos.X, CurrMouse.Y - MousePos.Y);
+
+                        gobjc.DragRectangleF.X = Max(0f, Min(gobjc.DragRectangleF.X, ClientSize.Width - gobjc.DragRectangleF.Width));
+                        gobjc.DragRectangleF.Y = Max(0f, Min(gobjc.DragRectangleF.Y, ClientSize.Height - gobjc.DragRectangleF.Height));
+
+                        MousePos = new Point(e.X, e.Y);
+
+                        MousePos.X = Max(0, Min(MousePos.X, ClientSize.Width));
+                        MousePos.Y = Max(0, Min(MousePos.Y, ClientSize.Height));
+
+                        SelectedObject.X = MousePos.X;
+                        SelectedObject.Y = MousePos.Y;
+
+                        MousePos = PointToScreen(MousePos);
+
+                        Invalidate();
+
+                        StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.ObjectRotated, SelectedObject, string.Format("Object Dragged", null), MousePos, (float)default));
+                    }
+                }
+
+                else if (RectResizing)
+                {
+
+                    if (ActiveDrag != -1)
+                    {
+
+                        if (Abs(CurrMouse.X - MousePos.X) > 2 | Abs(CurrMouse.Y - MousePos.Y) > 2)
+                        {
+
+                            switch (ActiveDrag)
+                            {
+                                case 0: // NW
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Height -= CurrMouse.Y - MousePos.Y;
+
+                                        if (!(gobjc.DragRectangleF.Height <= 20f))
+                                        {
+                                            gobjc.DragRectangleF.Y -= StartlRectangle.Y;
+                                            SelectedObject.Y = (int)Round(StartlRectangle.Y);
+                                            SelectedObject.SetPosition(new Point((int)Round(StartlRectangle.X), (int)Round(StartlRectangle.Y)));
+                                            SelectedObject.Height = (int)Round(StartlRectangle.Height - SelectedObject.Y);
+                                        }
+
+                                        StartlRectangle.Width -= CurrMouse.X - MousePos.X;
+
+                                        if (!(StartlRectangle.Width < 20f))
+                                        {
+                                            gobjc.DragRectangleF.X -= -CurrMouse.X + MousePos.X;
+                                            gobjc.DragRectangleF.Width -= -CurrMouse.Y + MousePos.Y;
+                                            SelectedObject.X = (int)Round(StartlRectangle.X);
+                                            SelectedObject.SetPosition(new Point((int)Round(StartlRectangle.X), (int)Round(StartlRectangle.Y)));
+                                            SelectedObject.Width = (int)Round(StartlRectangle.Width - SelectedObject.X);
+                                        }
+                                        else
+                                        {
+                                            gobjc.DragRectangleF.Width = 20f;
+                                        }
+
+                                        break;
+                                    }
+
+                                case 1: // North
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Height -= CurrMouse.Y - MousePos.Y;
+
+                                        if (!(gobjc.DragRectangleF.Height < 20f))
+                                        {
+                                            gobjc.DragRectangleF.Y -= StartlRectangle.Y;
+                                            SelectedObject.Y = (int)Round(StartlRectangle.Y);
+                                            SelectedObject.Height = (int)Round(StartlRectangle.Height);
+                                        }
+
+                                        break;
+                                    }
+
+                                case 2: // NE
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Height -= CurrMouse.Y - MousePos.Y;
+                                        StartlRectangle.Width -= CurrMouse.Y - MousePos.Y;
+
+                                        if (!(StartlRectangle.Height < 20f))
+                                        {
+                                            gobjc.DragRectangleF.Y = StartlRectangle.Y;
+                                            SelectedObject.Y = (int)Round(gobjc.DragRectangleF.Y);
+                                            SelectedObject.Height = (int)Round(StartlRectangle.Height);
+                                        }
+
+
+                                        if (!(StartlRectangle.Width <= 20f))
+                                        {
+                                            gobjc.DragRectangleF.X = StartlRectangle.X;
+                                            SelectedObject.X = (int)Round(StartlRectangle.X);
+                                            SelectedObject.Width = (int)Round(StartlRectangle.Width);
+                                        }
+
+                                        break;
+                                    }
+
+                                case 3: // East
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Width += CurrMouse.X - MousePos.X;
+
+                                        if (StartlRectangle.Width >= 20f)
+                                        {
+                                            gobjc.DragRectangleF.Width = StartlRectangle.Width;
+                                            SelectedObject.Width = (int)Round(StartlRectangle.Width);
+                                        }
+
+                                        break;
+                                    }
+
+                                case 4: // SE
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Height += CurrMouse.Y - MousePos.Y;
+                                        StartlRectangle.Width += CurrMouse.Y - MousePos.Y;
+
+                                        if (!(StartlRectangle.Height < 20f))
+                                        {
+                                            gobjc.DragRectangleF.Y = StartlRectangle.Y;
+                                            SelectedObject.Y = (int)Round(gobjc.DragRectangleF.Y);
+                                            SelectedObject.Height = (int)Round(StartlRectangle.Height);
+                                        }
+
+
+                                        if (!(StartlRectangle.Width <= 20f))
+                                        {
+                                            gobjc.DragRectangleF.X = StartlRectangle.X;
+                                            SelectedObject.X = (int)Round(StartlRectangle.X);
+                                            SelectedObject.Width = (int)Round(StartlRectangle.Width);
+                                        }
+
+                                        break;
+                                    }
+
+                                case 5: // South
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        if (gobjc.DragRectangleF.Height >= 20f)
+                                        {
+                                            gobjc.DragRectangleF.Height += CurrMouse.Y - MousePos.Y;
+                                            gobjc.DragRectangleF.Height = Max(20f, gobjc.DragRectangleF.Height);
+                                            SelectedObject.Height = (int)Round(gobjc.DragRectangleF.Height);
+                                        }
+
+                                        Refresh();
+                                        break;
+                                    }
+
+                                case 6: // SW
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        StartlRectangle.Height += CurrMouse.Y - MousePos.Y;
+                                        StartlRectangle.Width += CurrMouse.X - MousePos.X;
+
+                                        if (!(StartlRectangle.Height < 20f))
+                                        {
+                                            gobjc.DragRectangleF.Y = StartlRectangle.Y;
+                                            SelectedObject.Y = (int)Round(gobjc.DragRectangleF.Y);
+                                            SelectedObject.Height = (int)Round(StartlRectangle.Height);
+                                        }
+
+
+                                        if (!(StartlRectangle.Width <= 20f))
+                                        {
+                                            gobjc.DragRectangleF.X = StartlRectangle.X;
+                                            SelectedObject.X = (int)Round(StartlRectangle.X);
+                                            SelectedObject.Width = (int)Round(StartlRectangle.Width);
+                                        }
+
+                                        break;
+                                    }
+
+                                case 7: // West
+                                    {
+
+                                        SelectedObject.AutoSize = false;
+
+                                        gobjc.DragRectangleF.Width -= CurrMouse.X - MousePos.X;
+
+                                        if (!(gobjc.DragRectangleF.Width <= 20f))
+                                        {
+                                            gobjc.DragRectangleF.X -= -CurrMouse.X + MousePos.X;
+                                            SelectedObject.X = (int)Round(gobjc.DragRectangleF.X);
+                                            SelectedObject.Width = (int)Round(gobjc.DragRectangleF.Width);
+                                        }
+
+                                        Refresh();
+                                        break;
+                                    }
+
+                            }
+
+                            MousePos = new Point(e.X, e.Y);
+
+                            MousePos.X = Max(0, Min(MousePos.X, ClientSize.Width));
+                            MousePos.Y = Max(0, Min(MousePos.Y, ClientSize.Height));
+
+                            MousePos = PointToScreen(MousePos);
+                            Invalidate();
+                            StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.ObjectRotated, SelectedObject, string.Format("Object Resized", null), MousePos, (float)default));
+                        }
+                    }
+                }
+            }
+
+            else
+            {
+
+                if (SelectedObject is null)
+                    return;
+
+                MouseInRect = false;
+                ActiveDrag = -1;
+                SelectedObject.MousePosition = MousePos;
+                PropertyGrid1.SelectedObject = SelectedObject;
+                PropertyGrid1.Refresh();
+                gobjc.LoadDrag_Handles();
+                int i = 0;
+                var R = new RectangleF();
+                gobjc.LoadDrag_Handles();
+                // Dim OffSetX As Single = 0
+                // Dim OffSetY As Single = 0
+
+                foreach (var tmprect in gobjc.Drag_Handles)
+                {
+                    if (tmprect.Contains(e.X / Zoom, e.Y / Zoom))
+                    {
+                        MouseInRect = true;
+                        ActiveDrag = i;
+                        SetDragCursor();
+                        Invalidate();
+                        return;
+                    }
+                    i += 1;
+                }
+
+                if (gobjc.DragRectangleF.Contains(e.X / Zoom, e.Y / Zoom))
+                {
+                    MouseInRect = true;
+                    Cursor = Cursors.Hand;
+                    Invalidate();
+                    return;
+                }
+
+                Cursor = Cursors.Default;
+                Invalidate();
+            }
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (e.Delta != 0) // has wheel been moved?
+            {
+                // The .NET docs suggest that e.Delta returns the actual number of notches
+                // the mouse wheel has been rotated, but in actuality each roll of the mouse wheel
+                // returns a value of +/- 120 (depending on the direction of rotation).
+                // 120 is actually a system constant, and therefore there is a possibility that it could
+                // change to allow for higher-resolution mouse wheels.
+
+                // check out <http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_mousewheel.asp>
+                // for more information
+                if (SelectedObject is null)
+                {
+                    int detents = Abs(e.Delta / 120);
+                    int i;
+                    bool zoomIn = e.Delta < 0;
+                    int zoomPercentage = (int)Round(Zoom * 100f);
+                    var loopTo = detents;
+                    for (i = 1; i <= loopTo; i++)
+                    {
+                        if (zoomPercentage <= 100)
+                        {
+                            if (zoomIn)
+                            {
+                                zoomPercentage = zoomPercentage / 2;
+                            }
+                            else
+                            {
+                                zoomPercentage = zoomPercentage * 2;
+                            }
+                        }
+                        else if (zoomIn)
+                        {
+                            zoomPercentage = zoomPercentage - 50;
+                        }
+                        else
+                        {
+                            zoomPercentage = zoomPercentage + 50;
+                        }
+                    }
+                    Zoom = (float)(zoomPercentage / 100d);
+                    StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.SurfaceZoomChanged, SelectedObject, string.Format("Zoom set to {0}", Zoom * 100f), default, Zoom));
+                    Invalidate();
+                }
+
+                GraphicObjects.GraphicObjectCollection.Zoom = Zoom;
+                // Dim IG As GraphicObjects.ImageGraphic
+                // IG.Draw(Nothing)
+            }
+
+        }
+
+        // TODO: Rewrite to handle multiple selected objects
+        public GraphicObjects.GraphicObjects SelectedObject
+        {
+            get
+            {
+                return m_SelectedObject;
+            }
+            set
+            {
+                if (!ReferenceEquals(value, m_SelectedObject))
+                {
+                    if (m_drawingObjects.Contains(value) || value is null)
+                    {
+                        m_SelectedObject = value;
+                        if (PropertyGrid1 != null)
+                        {
+                            PropertyGrid1.SelectedObject = value is null ? (object)this : value;
+                            PropertyGrid1.Refresh();
+                        }
+                        SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(value));
+                        if (value is null)
+                        {
+                            StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.SelectionChanged, value, "No Object Selected", default, 0f));
+                        }
+                        else
+                        {
+                            StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(StatusUpdateType.SelectionChanged, value, "Selected Object Changed", value.GetPosition(), 0f));
+                        }
+                        Invalidate();
+                    }
+                }
+            }
+        }
+
+        public void DeleteSelectedObject()
+        {
+            if (SelectedObject is null)
+                return;
+            var objectToDelete = SelectedObject;
+            var gobj = SelectedObject;
+            if (objectToDelete is not null)
+            {
+                if (drawingObjects.Contains(objectToDelete))
+                {
+                    // UndoList.Remove(gobj)
+                    gobj.objType = ObjectTypes.DeletedObject;
+                    // RedoList.Add(gobj)
+                    drawingObjects.Remove(objectToDelete);
+                    SelectedObject = null;
+                }
+            }
+            intObjectCount -= 1;
+            // Me.lblUndo.Text = "Redo = " & RedoList.Count.ToString
+            // Me.lblUndo.Text = "Undo = " & UndoList.Count.ToString
+            // MsgBox("DeleteSelectedObject Undo = " & UndoList.Count & Environment.NewLine & "Redodo = " & RedoList.Count)
+        }
+
+        public void DeleteAllObjects()
+        {
+            // add all deleted objects to list so it can be undone
+            foreach (GraphicObjects.GraphicObjects gobj in drawingObjects)
+                // Me.RedoList.Add(gobj)
+                gobj.objType = ObjectTypes.DeletedObject;
+            // UndoList.Clear()
+            drawingObjects.Clear();
+            intObjectCount = 0;
+            allObjectsDeleted = true;
+            // Me.lblUndo.Text = "Redo = " & RedoList.Count.ToString
+            // Me.lblUndo.Text = "Undo = " & UndoList.Count.ToString
+            Invalidate();
+        }
+
+        private float AngleToPoint(Point Origin, Point Target)
+        {
+            // a cool little utility function, 
+            // given two points finds the angle between them....
+            // forced me to recall my highschool math, 
+            // but the task is made easier by a special overload to
+            // Atan that takes X,Y co-ordinates.
+            float Angle;
+            Target.X = Target.X - Origin.X;
+            Target.Y = Target.Y - Origin.Y;
+            Angle = (float)(Atan2(Target.Y, Target.X) / (PI / 180d));
+            return Angle;
+        }
+
+        private void DesignSurface_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyData)
+            {
+                case Keys.Delete:
+                    {
+                        if (SelectedObject is not null)
+                        {
+                            DeleteSelectedObject();
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        // This is where most of the action takes place any item added to design surface must 
+        // be done through this sub procedure 
+        // If Path is known set image path 
+        // If image has no path set theImage
+        public void AddObject(ObjectTypes ObjectType, string ImagePath = "", Image TheImage = null)
+        {
+
+            Cursor = Cursors.WaitCursor;
+            // Create a new graphic object
+            GraphicObjects.GraphicObjects gObj = null;
+            // Add 1 To image count to track images
+            intObjectCount += 1;
+            Bitmap BMImage = (Bitmap)TheImage;
+            BMImage.MakeTransparent();
+            pbCropped.Width = BMImage.Width;
+            pbCropped.Height = BMImage.Height;
+            var ReduceBMImageSize = new Bitmap(TheImage, ZoomSize(TheImage.Size));
+
+            pbCropped.Image = ReduceBMImageSize;
+
+
+            switch (ObjectType)
+            {
+
+                case ObjectTypes.Linked:
+                    {
+
+                        var myLinkedImage = new GraphicObjects.LinkedImageGraphic(50, 50, strImagePath);
+                        BMImage = new Bitmap(strImagePath);
+                        gObj.Image = BMImage;
+                        gObj = myLinkedImage;
+                        gObj.AutoSize = true;
+                        break;
+                    }
+
+                case ObjectTypes.Text:
+                    {
+
+                        var MyNewImage = new GraphicObjects.TextGraphic(new Point(50, 50), TheImage);
+                        gObj = MyNewImage;
+                        gObj.AutoSize = true;
+                        gObj.Image = TheImage;
+                        break;
+                    }
+                // Dim myTextObject As New TextGraphic(10, 10, Text, Font, ForeColor)
+                // gObj = myTextObject
+                // gObj.AutoSize = True
+
+                case ObjectTypes.EmbeddedImageGraphic: // Allows images without paths
+                    {
+
+                        var MyNewImage = new GraphicObjects.EmbeddedImageGraphic(new Point(50, 50), TheImage);
+                        gObj = MyNewImage;
+                        gObj.AutoSize = true;
+                        gObj.Image = TheImage;
+                        break;
+                    }
+
+                case ObjectTypes.ClonedObject:
+                    {
+                        break;
+                    }
+                // gObj = ClonedObject
+
+                case ObjectTypes.Fill: // Allow the background to be colored
+                    {
+
+                        try
+                        {
+                            var myRectangle = new GraphicObjects.RectangleGraphic(SurfaceMargins.X, SurfaceMargins.Y, SurfaceMargins.Width, SurfaceMargins.Height);
+                            myRectangle.Fill = true;
+                            colorPicker.ShowDialog();
+                            myRectangle.FillColor = colorPicker.Color;
+                            gObj = myRectangle;
+                        }
+
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        break;
+                    }
+
+                case ObjectTypes.Background: // Allow the background to have an image fit to Surface
+                    {
+
+                        try
+                        {
+                            if (TheImage is null)
+                            {
+
+                                ofdImage.ShowDialog();
+
+                                if (ofdImage.FileName is not null)
+                                {
+
+                                    strImagePath = ofdImage.FileName;
+                                    var myBackgroundImage = new GraphicObjects.BackGroundImageGraphic(0, 0, strImagePath);
+                                    gObj = myBackgroundImage;
+
+                                    // This sets the new image Size
+                                    gObj.Height = SurfaceBounds.Height;
+                                    gObj.Width = SurfaceBounds.Width;
+                                    gObj.AutoSize = false;
+
+                                }
+                            }
+                            else
+                            {
+                                BackgroundImage = TheImage;
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        break;
+                    }
+
+                default:
+                    {
+                        break;
+                    }
+
+            }
+
+            if (gObj is not null)
+            {
+                // Add the object to the designer
+                drawingObjects.Add(gObj);
+                Update();
+                SelectedObject = gObj;
+                SelectedObject.objType = ObjectType;
+                SelectedObject.ImageName = ObjectType.ToString() + intObjectCount.ToString();
+                SelectedObject.ImageNumber = intObjectCount;
+                SelectedObject.ImagePath = strImagePath;
+                PropertyGrid1.SelectedObject = SelectedObject;
+                gobjc.DragRectangleF = new RectangleF(SelectedObject.X, SelectedObject.Y, SelectedObject.Width, SelectedObject.Height);
+
+                // Add The object to the Undo List
+                Undo();
+                // listUndo.Items.Add(gObj)
+                Refresh();
+            }
+
+            // ClonedObject = Nothing
+
+            if (intObjectCount > 0)
+            {
+                CanCutObject = true;
+            }
+            else
+            {
+                CanCutObject = false;
+            }
+            // PropertyGrid1.SelectedObject = dsSurface.SelectedObject
+            Cursor = Cursors.Default;
+        }
+
+        public void AddImageObject()
+        {
+            try
+            {
+
+                // Call the openfile dialog and get information
+                {
+                    var withBlock = ofdImage;
+                    withBlock.CheckFileExists = true;
+                    withBlock.CheckPathExists = true;
+                    withBlock.Title = "Select Image File";
+                    withBlock.Filter = "Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF|All files (*.*)|*.*";
+                    // "Bitmap Image(*.bmp)|*.bmp|Jpeg Image(*.jpg)|*.jpg|GIF Image(*.gif)|*.gif|PNG Image(*.png)|*.png|All files (*.*)|*.*"
+                    // '"JPEG files (*.jpg)|*.jpg|GIF files (*.gif)|*.gif|All files (*.*)|*.*"
+                    withBlock.AddExtension = true;
+                    withBlock.Multiselect = false;
+                    withBlock.RestoreDirectory = true;
+                    withBlock.ShowDialog();
+                    // Hold the path for use later
+                    strImagePath = withBlock.FileName;
+                    if (withBlock.FileName is null)
+                    {
+                        return;
+                    }
+                    AddObject(ObjectTypes.Linked, strImagePath);
+                }
+                Cursor = Cursors.Default;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public void AddBackGroundImage()
+        {
+            {
+                var withBlock = ofdImage;
+                AddObject(ObjectTypes.Background, withBlock.FileName);
+            }
+            SelectedObject.SendToBack(SelectedObject);
+            Invalidate();
+        }
+
+        public void AddImage(Image img)
+        {
+            {
+                var withBlock = ofdImage;
+                AddObject(ObjectTypes.EmbeddedImageGraphic, null, img);
+            }
+            // Me.SelectedObject.SendToBack(Me.SelectedObject)
+            Invalidate();
+        }
+
+        public void FillBackColor()
+        {
+            AddObject(ObjectTypes.Fill, null);
+        }
+
+        public void ClearGridObjects()
+        {
+            DialogResult dr;
+            dr = MessageBox.Show("Are you sure you want to remove all the graphic elements from the design surface?", "Confirm Clear All Elements", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dr == DialogResult.Yes)
+            {
+                DeleteAllObjects();
+                SelectedObject = null;
+                // Reset ImageCount to 0
+                intObjectCount = 0;
+                // sbObjectCount.Text = Me.intObjectCount.ToString & "  Images Loaded"
+                Invalidate();
+            }
+        }
+
+        private void pbCropped_Click(object sender, EventArgs e)
+        {
+            // pbCropped.Image is only assigned once an object has been added through
+            // AddObject(), so this preview box can still be clicked while it is empty.
+            if (pbCropped.Image == null)
+                return;
+
+            MessageBox.Show(pbCropped.Image.Size.ToString());
+        }
+
+        private void BtnTogglePropertyGrid_Click(object sender, EventArgs e)
+        {
+            SetPropertyGridCollapsed(!PropertyGridCollapsed);
+        }
+
+        private void PropertiesCaption_Paint(object sender, PaintEventArgs e)
+        {
+            var caption = (Panel)sender;
+            e.Graphics.TranslateTransform(caption.Width / 2f, caption.Height / 2f);
+            e.Graphics.RotateTransform(-90f);
+            using (var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            using (var brush = new SolidBrush(caption.ForeColor))
+            {
+                e.Graphics.DrawString("Properties", caption.Font, brush, 0f, 0f, format);
+            }
+        }
+
+        public enum GridOrientation
+        {
+            Portrait,
+            Landscape
+        }
+
+        public enum PageSizeKind
+        {
+            Letter,
+            Legal,
+            Tabloid,
+            Executive,
+            A3,
+            A4,
+            A5,
+            A6
+        }
+
+        private PageSizeKind m_PageSize = PageSizeKind.Letter;
+
+        // Custom page size (portrait dims) set by an imported template's
+        // non-uniform fallback layout. Cleared when PageSize/Template change.
+        private Size? m_ImportedPageSize;
+
+        private LabelSheet m_Template;
+
+        // Effective template geometry in surface units (1/100 inch), already
+        // transposed for landscape orientation. Only valid when templateActive.
+        private bool templateActive;
+
+        private int t_SheetWidth, t_SheetHeight, t_Columns, t_Rows;
+
+        private int t_LabelWidth, t_LabelHeight, t_MarginLeft, t_MarginTop, t_PitchX, t_PitchY;
+
+        // Command-style properties: the PropertyGrid sets them true, the setter runs the
+        // import and snaps the value back to false so they behave like menu items.
+        private bool _importWordTemplate;
+        private bool _importSpreadsheet;
+
+        /// <summary>
+        /// Gets or sets the page size of the design surface grid.
+        /// Dimensions are in 1/100 inch units (Letter = 8.5 x 11in -> 850 x 1100).
+        /// </summary>
+        [Description("The page size of the design surface (Letter, Legal, Tabloid, Executive, A3, A4, A5 or A6).")]
+        public PageSizeKind PageSize
+        {
+            get
+            {
+                return m_PageSize;
+            }
+
+            set
+            {
+                if (value == m_PageSize)
+                {
+                    return;
+                }
+
+                m_PageSize = value;
+                m_ImportedPageSize = null;
+                ApplyPageSetup();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the label sheet template (e.g. Avery 5160). When set,
+        /// the template's sheet size and label grid replace the PageSize setup.
+        /// Set to null or LabelSheet.NoTemplate to clear.
+        /// </summary>
+        [TypeConverter(typeof(LabelSheetConverter))]
+        [Description("Label sheet template (Avery presets). Overrides PageSize when set.")]
+        public LabelSheet Template
+        {
+            get
+            {
+                return m_Template;
+            }
+
+            set
+            {
+                var newTemplate = ReferenceEquals(value, LabelSheet.NoTemplate) ? null : value;
+                if (ReferenceEquals(newTemplate, m_Template))
+                {
+                    return;
+                }
+
+                m_Template = newTemplate;
+                m_ImportedPageSize = null;
+                ApplyPageSetup();
+            }
+        }
+
+        /// <summary>
+        /// Check to import a Word template (.docx/.dotx). Opens a file picker and
+        /// imports the document's table as a label sheet or cell outlines.
+        /// Resets itself — it is a command, not stored state.
+        /// </summary>
+        [Category("Template")]
+        [Description("Import a Word template (.docx/.dotx). Check to browse for a file.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ImportWordTemplate
+        {
+            get { return _importWordTemplate; }
+            set
+            {
+                _importWordTemplate = false;
+                if (value) PickAndImport("Import Word Template", "Word templates (*.docx;*.dotx)|*.docx;*.dotx");
+                RefreshPropertyGrid();
+            }
+        }
+
+        /// <summary>
+        /// Check to import a spreadsheet template (.xlsx/.xlsm). Opens a file
+        /// picker and imports the sheet's cell grid as a label sheet or outlines.
+        /// Resets itself — it is a command, not stored state.
+        /// </summary>
+        [Category("Template")]
+        [Description("Import a spreadsheet template (.xlsx/.xlsm). Check to browse for a file.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ImportSpreadsheet
+        {
+            get { return _importSpreadsheet; }
+            set
+            {
+                _importSpreadsheet = false;
+                if (value) PickAndImport("Import Spreadsheet Template", "Spreadsheets (*.xlsx;*.xlsm)|*.xlsx;*.xlsm");
+                RefreshPropertyGrid();
+            }
+        }
+
+        private void PickAndImport(string title, string filter)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = title;
+                ofd.Filter = filter + "|All files (*.*)|*.*";
+                ofd.CheckFileExists = true;
+                ofd.RestoreDirectory = true;
+                if (ofd.ShowDialog(FindForm()) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                ImportOfficeTemplate(ofd.FileName);
+            }
+        }
+
+        private void RefreshPropertyGrid()
+        {
+            if (_PropertyGrid1 != null && !_PropertyGrid1.IsDisposed)
+            {
+                _PropertyGrid1.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Returns the bounds of template cell (column, row) in 1/100 inch
+        /// surface units, or Rectangle.Empty when no template is active.
+        /// </summary>
+        public Rectangle GetTemplateCellBounds(int column, int row)
+        {
+            if (!templateActive)
+            {
+                return Rectangle.Empty;
+            }
+
+            return new Rectangle(
+                t_MarginLeft + column * t_PitchX,
+                t_MarginTop + row * t_PitchY,
+                t_LabelWidth,
+                t_LabelHeight);
+        }
+
+        /// <summary>
+        /// Gets or sets the grid/page orientation. Setting this resizes the
+        /// surface bounds and margins to match.
+        /// </summary>
+        [Description("The orientation of the design surface grid (Portrait or Landscape).")]
+        public GridOrientation Orientation
+        {
+            get
+            {
+                return blnLandscape ? GridOrientation.Landscape : GridOrientation.Portrait;
+            }
+
+            set
+            {
+                if (value == GridOrientation.Landscape)
+                {
+                    GridLandscape();
+                }
+                else
+                {
+                    GridPortrait();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the portrait dimensions of the selected PageSize in
+        /// 1/100 inch units.
+        /// </summary>
+        private Size GetPageSizeDimensions()
+        {
+            switch (m_PageSize)
+            {
+                case PageSizeKind.Legal:
+                    return new Size(850, 1400);
+                case PageSizeKind.Tabloid:
+                    return new Size(1100, 1700);
+                case PageSizeKind.Executive:
+                    return new Size(725, 1050);
+                case PageSizeKind.A3:
+                    return new Size(1169, 1654);
+                case PageSizeKind.A4:
+                    return new Size(827, 1169);
+                case PageSizeKind.A5:
+                    return new Size(583, 827);
+                case PageSizeKind.A6:
+                    return new Size(413, 583);
+                case PageSizeKind.Letter:
+                default:
+                    return new Size(850, 1100);
+            }
+        }
+
+        private void ApplyPageSetup()
+        {
+            if (intObjectCount != 0)
+            {
+                MessageBox.Show("Changing the page size or orientation will not change the objects on the surface and should be set up on empty surface.", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (m_Template != null)
+            {
+                templateActive = true;
+
+                // Portrait values straight from the template; landscape is a
+                // transpose (swap axes) of the same layout.
+                t_SheetWidth = blnLandscape ? m_Template.SheetHeight : m_Template.SheetWidth;
+                t_SheetHeight = blnLandscape ? m_Template.SheetWidth : m_Template.SheetHeight;
+                t_Columns = blnLandscape ? m_Template.Rows : m_Template.Columns;
+                t_Rows = blnLandscape ? m_Template.Columns : m_Template.Rows;
+                t_LabelWidth = blnLandscape ? m_Template.LabelHeight : m_Template.LabelWidth;
+                t_LabelHeight = blnLandscape ? m_Template.LabelWidth : m_Template.LabelHeight;
+                t_MarginLeft = blnLandscape ? m_Template.MarginTop : m_Template.MarginLeft;
+                t_MarginTop = blnLandscape ? m_Template.MarginLeft : m_Template.MarginTop;
+                t_PitchX = blnLandscape ? m_Template.PitchY : m_Template.PitchX;
+                t_PitchY = blnLandscape ? m_Template.PitchX : m_Template.PitchY;
+
+                SurfaceBounds = new Rectangle(0, 0, t_SheetWidth, t_SheetHeight);
+
+                // Printable area = bounding box of all label cells.
+                var right = t_MarginLeft + (t_Columns - 1) * t_PitchX + t_LabelWidth;
+                var bottom = t_MarginTop + (t_Rows - 1) * t_PitchY + t_LabelHeight;
+                SurfaceMargins = new Rectangle(t_MarginLeft, t_MarginTop, right - t_MarginLeft, bottom - t_MarginTop);
+                Invalidate();
+                return;
+            }
+
+            templateActive = false;
+
+            var pageDims = m_ImportedPageSize ?? GetPageSizeDimensions();
+            int pageWidth = pageDims.Width;
+            int pageHeight = pageDims.Height;
+
+            if (blnLandscape)
+            {
+                int tmp = pageWidth;
+                pageWidth = pageHeight;
+                pageHeight = tmp;
+            }
+
+            SurfaceBounds = new Rectangle(0, 0, pageWidth, pageHeight);
+            SurfaceMargins = new Rectangle(10, 10, pageWidth - 20, pageHeight - 20);
+            Invalidate();
+        }
+
+        public void GridLandscape()
+        {
+            blnLandscape = true;
+            ApplyPageSetup();
+        }
+
+        public void GridPortrait()
+        {
+            blnLandscape = false;
+            ApplyPageSetup();
+        }
+
+        public void CopyObject(GraphicObjects.GraphicObjects gobj)
+        {
+            // ClonedObject = Nothing
+            // If Me.SelectedObject Is Nothing Then Exit Sub
+            // ClonedObject = SelectedObject
+
+        }
+
+        public void PasteObject()
+        {
+            // If ClonedObject Is Nothing Then Exit Sub
+            // AddObject(ClonedObject.ImageType, Nothing)
+        }
+
+        public void Undo()
+        {
+
+            // If SelectedObject Is Nothing Then
+            // SelectedObject = UndoStack.Pop
+            // RedoStack.Push(SelectedObject)
+            // Else
+            // UndoStack.Push(gobj)
+            // End If
+            // Dim gobj As MustInherit GraphicObjects.GraphicObjects
+            // gobj = UndoStack.Pop
+            // If UndoList.Count < 1 Then Exit Sub
+            // If UndoList.Count = 1 And SelectedObject Is Nothing Then
+            // RedoList.Add(SelectedObject)
+            // DeleteSelectedObject()
+            // 'Me.lblUndo.Text = "Redo = " & RedoList.Count.ToString
+            // 'Me.lblUndo.Text = "Undo = " & UndoList.Count.ToString
+            // Exit Sub
+            // End If
+
+            // ClonedObject = UndoList.Item(UndoList.Count - 1)
+
+            // ClonedObject.objType = ObjectTypes.ClonedObject
+            // RedoList.Add(ClonedObject)
+            // UndoList.RemoveAt(UndoList.Count - 1)
+            // AddObject(ClonedObject.objType, Nothing)
+            // 'Me.lblUndo.Text = "Redo = " & RedoList.Count.ToString
+            // 'Me.lblUndo.Text = "Undo = " & UndoList.Count.ToString
+
+        }
+
+        public void Redo()
+        {
+            // If UndoStack.Count > 0 Then
+            // UndoStack.Push(RedoStack.Pop)
+            // End If
+
+
+            // If RedoList.Count < 1 Then Exit Sub
+            // ClonedObject = RedoList.Item(RedoList.Count - 1)
+            // UndoList.Add(ClonedObject)
+            // RedoList.RemoveAt(RedoList.Count - 1)
+            // If Not ClonedObject.objType = ObjectTypes.DeletedObject Then
+            // AddObject(ClonedObject.objType, Nothing)
+            // End If
+
+            // 'Me.lblUndo.Text = "Redo = " & RedoList.Count.ToString
+            // 'Me.lblUndo.Text = "Undo = " & UndoList.Count.ToString
+        }
+
+        public bool ConvertBMP(string BMPFullPath, ImageFormat imgFormat)
+        {
+
+            bool bAns;
+            string sNewFile;
+
+            try
+            {
+                // bitmap class in system.drawing.imaging
+                var objBmp = new Bitmap(BMPFullPath);
+
+                // below 2 functions in system.io.path
+                sNewFile = Path.GetDirectoryName(BMPFullPath);
+                sNewFile += Path.GetFileNameWithoutExtension(BMPFullPath);
+
+                sNewFile += "." + imgFormat.ToString();
+                objBmp.Save(sNewFile, imgFormat);
+
+                bAns = true; // return true on success
+            }
+            catch
+            {
+                bAns = false; // return false on error
+            }
+            return bAns;
+
+        }
+
+        // Update the propertie grid
+        public void SelectedObjectChanged(GraphicObjects.GraphicObjects gobj = null)
+        {
+            if (gobj is null)
+            {
+            }
+            // PropertyGrid1.SelectedObject = Nothing
+            else
+            {
+                MessageBox.Show("Object Changed");
+            }
+        }
+
+        public void OpenGraphic()
+        {
+            {
+                var withBlock = ofdImage;
+                withBlock.AddExtension = true;
+                withBlock.CheckPathExists = true;
+                withBlock.Filter = "Data Files(*.dat)|*.dat|All files (*.*)|*.*";
+                withBlock.DefaultExt = "dat";
+                withBlock.InitialDirectory = Application.StartupPath + @"\"; // Set the object directory
+                withBlock.Title = "Load Graphic Surface";
+                withBlock.RestoreDirectory = true;
+                if (withBlock.ShowDialog() == DialogResult.OK)
+                {
+                    string fileName = withBlock.FileName;
+                    try
+                    {
+                        LoadFromFile(fileName);
+                        MessageBox.Show("File Loaded Successfully", "Design Surface", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        intObjectCount += 1;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message + Environment.NewLine + "Current Object is already Open", "File Failed To Load");
+                    }
+                }
+            }
+            Invalidate();
+        }
+
+        public void SaveGraphics()
+        {
+            if (intObjectCount <= 0)
+            {
+                MessageBox.Show("Nothing to save", "Save Graphic Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // no known object to be saved
+            }
+            foreach (GraphicObjects.GraphicObjects dobj in drawingObjects)
+                Debug.WriteLine(string.Format("{0},{1}", dobj.X, dobj.Y));
+
+            {
+                var withBlock = sfdImage;
+                withBlock.AddExtension = true;
+                withBlock.CheckPathExists = true;
+                withBlock.CreatePrompt = true;
+                withBlock.OverwritePrompt = true;
+                withBlock.Filter = "Data Files (*.dat)|*.dat|All files (*.*)|*.*";
+                withBlock.DefaultExt = "dat";
+                withBlock.FileName = "GraphicObjects.dat";
+                withBlock.InitialDirectory = Application.StartupPath + @"\";
+                withBlock.Title = "Save Current Graphic Surface";
+                withBlock.RestoreDirectory = true;
+                if (withBlock.ShowDialog() == DialogResult.OK)
+                {
+                    string fileName = withBlock.FileName;
+                    SaveToFile(fileName);
+                    MessageBox.Show("File Saved Successfully.", "Graphics Surface", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Configures the print document's paper size, orientation and margins
+        /// from the current PageSize/Template/Orientation settings.
+        /// </summary>
+        private void ApplyPrintSettings()
+        {
+            var settings = designSurfacePrintDocument.DefaultPageSettings;
+            settings.Landscape = blnLandscape;
+            settings.Margins = new System.Drawing.Printing.Margins(25, 25, 25, 25);
+
+            int sheetWidth;
+            int sheetHeight;
+
+            if (templateActive && m_Template != null)
+            {
+                // Template sheet size (always portrait; Landscape flag rotates).
+                sheetWidth = m_Template.SheetWidth;
+                sheetHeight = m_Template.SheetHeight;
+            }
+            else
+            {
+                var dims = m_ImportedPageSize ?? GetPageSizeDimensions();
+                sheetWidth = dims.Width;
+                sheetHeight = dims.Height;
+            }
+
+            // PaperSize dimensions are in hundredths of a millimeter.
+            // 1 surface unit = 1/100 inch = 0.254 mm = 25.4 hundredths-mm.
+            settings.PaperSize = new System.Drawing.Printing.PaperSize("Custom",
+                (int)Math.Round(sheetWidth * 25.4),
+                (int)Math.Round(sheetHeight * 25.4));
+        }
+
+        private void DesignSurfacePrintDocument_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+        {
+            try
+            {
+                // Render the page area (objects only, no grid/guides) to a
+                // bitmap using the same pixel space as the screen, then fit it
+                // onto the printer's printable area preserving aspect ratio.
+                var pageBounds = ZoomRectangle(ConvertToPixels(SurfaceBounds));
+                using (var bmp = new Bitmap(Math.Max(1, pageBounds.Width), Math.Max(1, pageBounds.Height)))
+                {
+                    using (var g = Graphics.FromImage(bmp))
+                    {
+                        g.Clear(BackColor);
+                        drawingObjects.HorizontalResolution = (int)Math.Round(g.DpiX);
+                        drawingObjects.VerticalResolution = (int)Math.Round(g.DpiY);
+                        drawingObjects.DrawObjects(g, Zoom);
+                    }
+
+                    var marginBounds = e.MarginBounds;
+                    var scale = Math.Min((float)marginBounds.Width / bmp.Width, (float)marginBounds.Height / bmp.Height);
+                    var drawWidth = (int)Math.Round(bmp.Width * scale);
+                    var drawHeight = (int)Math.Round(bmp.Height * scale);
+                    var drawX = marginBounds.X + (marginBounds.Width - drawWidth) / 2;
+                    var drawY = marginBounds.Y + (marginBounds.Height - drawHeight) / 2;
+                    e.Graphics.DrawImage(bmp, drawX, drawY, drawWidth, drawHeight);
+                }
+            }
+            catch (Exception ex)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Print failed: " + ex.Message, "Print Graphic Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            e.HasMorePages = false;
+        }
+
+        /// <summary>
+        /// Prompts for an Office template file (.docx/.dotx/.xlsx/.xlsm) and imports it.
+        /// Uniform label grids become the active Template; anything else is
+        /// placed on the surface as cell outline objects.
+        /// </summary>
+        public void ImportTemplate()
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Import Office Template";
+                ofd.Filter = "Office templates (*.dotx;*.docx;*.xlsx;*.xlsm)|*.dotx;*.docx;*.xlsx;*.xlsm|All files (*.*)|*.*";
+                ofd.CheckFileExists = true;
+                ofd.RestoreDirectory = true;
+                if (ofd.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                ImportOfficeTemplate(ofd.FileName);
+            }
+        }
+
+        /// <summary>
+        /// Imports an Office/OpenXML template file. Returns true on success.
+        /// </summary>
+        public bool ImportOfficeTemplate(string path)
+        {
+            var ext = Path.GetExtension(path);
+            OfficeTemplateResult result;
+            if (string.Equals(ext, ".xlsx", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(ext, ".xlsm", StringComparison.OrdinalIgnoreCase))
+            {
+                result = SpreadsheetTemplateImporter.Import(path);
+            }
+            else
+            {
+                result = OfficeTemplateImporter.Import(path);
+            }
+            if (result == null)
+            {
+                MessageBox.Show("Could not read that file. Choose an Office template (.docx/.dotx/.xlsx/.xlsm).", "Import Template", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (result.Sheet != null)
+            {
+                blnLandscape = result.Landscape;
+                Template = result.Sheet;
+                MessageBox.Show("Template '" + result.Sheet.Name + "' imported (" + result.Sheet.Columns * result.Sheet.Rows + " labels).", "Import Template", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
+            }
+
+            if (result.Cells.Count == 0)
+            {
+                MessageBox.Show("No label cells were found in that template.", "Import Template", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // Non-uniform layout: size the page to the imported sheet, then
+            // place each label cell as an outline object so the user can see
+            // the template regions and fill them manually.
+            blnLandscape = result.Landscape;
+            if (result.PageSize.Width > 0 && result.PageSize.Height > 0)
+            {
+                m_ImportedPageSize = result.PageSize;
+            }
+            ApplyPageSetup();
+
+            foreach (var cell in result.Cells)
+            {
+                var rect = new GraphicObjects.RectangleGraphic(cell.X, cell.Y, cell.Width, cell.Height);
+                rect.AutoSize = false;
+                rect.IsPinned = true; // template guides stay put; objects on top remain movable
+                drawingObjects.Add(rect);
+                intObjectCount += 1;
+            }
+
+            Update();
+            Invalidate();
+            MessageBox.Show(result.Cells.Count + " cell outlines were placed on the surface. The layout isn't a uniform grid, so it can't become a template.", "Import Template", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return true;
+        }
+
+        public void PrintPreview()
+        {
+            try
+            {
+                if (intObjectCount <= 0)
+                {
+                    MessageBox.Show("Nothing to preview", "Preview Graphic Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; // no known object to be saved
+                }
+                ApplyPrintSettings();
+                var ppd = new PrintPreviewDialog();
+                ppd.TopMost = true;
+                ppd.Document = designSurfacePrintDocument;
+                ppd.UseAntiAlias = true;
+                ppd.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        public void PrintGraphics()
+        {
+            if (intObjectCount <= 0)
+            {
+                MessageBox.Show("Nothing to print", "Print Graphic Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // no known object to be saved
+            }
+            ApplyPrintSettings();
+            setupPrint.ShowDialog();
+        }
+
+        public void LoadImageObjects()
+        {
+            {
+                var withBlock = ofdImage;
+                withBlock.AddExtension = true;
+                withBlock.CheckPathExists = true;
+                withBlock.Filter = "Data Files(*.dat)|*.dat|All files (*.*)|*.*";
+                withBlock.DefaultExt = "dat";
+                withBlock.InitialDirectory = Application.StartupPath + @"\";
+                withBlock.Title = "Load Graphic Surface";
+                withBlock.RestoreDirectory = true;
+                if (withBlock.ShowDialog() == DialogResult.OK)
+                {
+                    string fileName = withBlock.FileName;
+                    try
+                    {
+                        LoadFromFile(fileName);
+                        MessageBox.Show("File Loaded Successfully", "Design Surface", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "File Failed To Load");
+                    }
+                }
+            }
+        }
+
+        private void btnHideGrabHandles_Click(GraphicObjects.GraphicObjects gobj, EventArgs e)
+        {
+            // DrawControlBorder(gobj, False)
+            Invalidate();
+        }
+
+        private void DesignSurface_Load(object sender, EventArgs e)
+        {
+            DoubleBuffered = true;
+            GraphicObjects.GraphicObjectCollection.Zoom = Zoom;
+            BackBrush = new SolidBrush(Color.LightGray);
+            LinePen[0] = new Pen(ForeColor);
+            LinePen[1] = new Pen(ForeColor);
+            LinePen[1].DashPattern = new float[] { 5f, 3f };
+
+            // LoadDrag_Handles()
+
+            if (PropertyGrid1 != null)
+            {
+                PropertyGrid1.SelectedObject = this;
+            }
+
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+        }
+
+
+
+    }
+}

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GraphicObjects/GraphicObjects.csproj" Id="be17e5af-bd24-057a-2b15-47a08d519fe3" />
+  <Project Path="GraphicsSurface/GraphicsSurface.csproj" Id="2b363a18-665f-0b2f-0566-9e36598c7450" />
+</Solution>

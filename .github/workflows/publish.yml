@@ -1,0 +1,73 @@
+name: Publish NuGet packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version to publish (e.g. 1.0.2). Leave empty to keep the nuspec version."
+        required: false
+        default: ""
+  push:
+    tags: ["v*"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout DesignSurface.NET
+        uses: actions/checkout@v4
+        with:
+          path: net
+
+      - name: Checkout DesignSurfaceCSharp (.NET Framework 4.8)
+        uses: actions/checkout@v4
+        with:
+          repository: DwainSnickles/DesignSurfaceCSharp
+          path: framework
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Download nuget.exe
+        run: curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+
+      - name: Restore .NET Framework packages (packages.config)
+        shell: pwsh
+        run: |
+          ./nuget.exe install MouseKeyHook -Version 5.7.1 -OutputDirectory framework\GraphicsSurface\packages
+          ./nuget.exe install System.Resources.Extensions -Version 7.0.0 -OutputDirectory framework\GraphicObjects\packages
+          ./nuget.exe install System.Resources.Extensions -Version 7.0.0 -OutputDirectory framework\GraphicsSurface\packages
+
+      - name: Build .NET Framework 4.8 projects
+        run: |
+          dotnet build framework\GraphicObjects\GraphicObjects.csproj -c Release
+          dotnet build framework\GraphicsSurface\DesignSurface.csproj -c Release
+
+      - name: Build .NET projects
+        run: dotnet build net\DesignSurface.slnx -c Release
+
+      - name: Pack NuGet packages
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          $v = $env:INPUT_VERSION
+          if (-not $v -and $env:REF_TYPE -eq 'tag') { $v = $env:REF_NAME -replace '^v', '' }
+          ./net/nuget/pack.ps1 -FrameworkDir ./framework -NetDir ./net -NuGetExe ./nuget.exe -OutDir ./artifacts -Version $v
+
+      - name: NuGet login (trusted publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: DwainSnickles
+
+      - name: Push packages to nuget.org
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://www.nuget.org/api/v2/package --skip-duplicate

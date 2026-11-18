@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>GraphicObjects</id>
+    <version>1.0.1</version>
+    <authors>Dwain Snickles</authors>
+    <owners>Dwain Snickles</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <readme>README.md</readme>
+    <description>Graphic object model for WinForms design surfaces (GraphicObject, shapes, text, images and image filters). Ships builds for .NET Framework 4.8 and .NET 8+ (net8.0-windows and later).</description>
+    <summary>Graphic object model for WinForms design surfaces</summary>
+    <projectUrl>https://github.com/DwainSnickles/DesignSurfaceCSharp</projectUrl>
+    <tags>winforms graphics design-surface</tags>
+    <dependencies>
+      <group targetFramework="net48">
+        <dependency id="System.Resources.Extensions" version="7.0.0" />
+      </group>
+      <group targetFramework="net8.0-windows7.0">
+        <dependency id="System.Resources.Extensions" version="8.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="readme-GraphicObjects.md" target="README.md" />
+    <file src="GraphicObjects\lib\**" target="lib" />
+  </files>
+</package>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>GraphicsSurface</id>
+    <version>1.0.1</version>
+    <authors>Dwain Snickles</authors>
+    <owners>Dwain Snickles</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <readme>README.md</readme>
+    <description>Scroll-zoomable WinForms design surface control with a graphic object model. Ships builds for .NET Framework 4.8 and .NET 8+ (net8.0-windows and later). Requires the GraphicObjects package.</description>
+    <summary>Scroll zoomable WinForms design surface control</summary>
+    <projectUrl>https://github.com/DwainSnickles/DesignSurface.NET</projectUrl>
+    <tags>winforms graphics design-surface usercontrol</tags>
+    <dependencies>
+      <group targetFramework="net48">
+        <dependency id="GraphicObjects" version="1.0.1" />
+        <dependency id="MouseKeyHook" version="5.7.1" />
+        <dependency id="System.Resources.Extensions" version="7.0.0" />
+      </group>
+      <group targetFramework="net8.0-windows7.0">
+        <dependency id="GraphicObjects" version="1.0.1" />
+        <dependency id="System.Resources.Extensions" version="8.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="readme-GraphicsSurface.md" target="README.md" />
+    <file src="GraphicsSurface\lib\**" target="lib" />
+  </files>
+</package>

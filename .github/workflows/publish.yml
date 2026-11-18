@@ -67,7 +67,8 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: DwainSnickles
+          # The nuget.org *profile* name, not an email address and not the GitHub login.
+          user: Dwains
 
       - name: Push packages to nuget.org
         run: dotnet nuget push ./artifacts/*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://www.nuget.org/api/v2/package --skip-duplicate

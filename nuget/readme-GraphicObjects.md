@@ -30,6 +30,10 @@ var text = new GraphicObjects.TextGraphic(
 surface.drawingObjects.Add(text); // surface = DesignSurface.DesignSurface
 ```
 
+## Support
+
+If this project saved you some time, you can leave a tip at [ko-fi.com/dwainhsnickles](https://ko-fi.com/dwainhsnickles) (cards, no account needed) or [paypal.me/YTDPlatinum](https://paypal.me/YTDPlatinum). Bug reports and pull requests are welcome too.
+
 ## License
 
 Derived from the Microsoft DesignSurface sample; see the

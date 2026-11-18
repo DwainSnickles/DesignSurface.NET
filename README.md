@@ -15,6 +15,11 @@ This is the **.NET 8+** edition of
 (the .NET Framework 4.8 build). Same object model and surface, modern
 SDK-style projects — it also builds and runs on .NET 9/10.
 
+<p align="center">
+  <a href="https://www.nuget.org/packages/GraphicObjects/"><img src="https://img.shields.io/nuget/v/GraphicObjects.svg?label=GraphicObjects" alt="GraphicObjects on NuGet"></a>
+  <a href="https://www.nuget.org/packages/GraphicsSurface/"><img src="https://img.shields.io/nuget/v/GraphicsSurface.svg?label=GraphicsSurface" alt="GraphicsSurface on NuGet"></a>
+</p>
+
 ## Projects
 
 | Project | Output | Purpose |
@@ -114,4 +119,4 @@ Derived from the Microsoft DesignSurface sample; see each project's
 
 ---
 
-<p align="center"><sub>Built for <a href="https://github.com/DwainSnickles">Dwain Snickles</a> · .NET Framework edition: <a href="https://github.com/DwainSnickles/DesignSurfaceCSharp">DesignSurfaceCSharp</a> · used by <a href="https://github.com/DwainSnickles/GraphicsWorkshop">GraphicsWorkshop</a></sub></p>
+<p align="center"><sub>Built for <a href="https://dwainsnickles.github.io/">Dwain Snickles</a> · .NET Framework edition: <a href="https://github.com/DwainSnickles/DesignSurfaceCSharp">DesignSurfaceCSharp</a> · used by <a href="https://github.com/DwainSnickles/GraphicsWorkshop">GraphicsWorkshop</a></sub></p>
